@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "Contracts/Twitter.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.7;\r\n\r\ncontract Twitter {\r\n  // ERRORS\r\n  error Twitter__UserDonotExist();\r\n\r\n  // EVENTS\r\n  event TweetAdded(address indexed tweeter, tweet indexed tweets);\r\n  event TweetDeleted(address indexed tweeter, tweet indexed tweets);\r\n\r\n  /** @author Sneha Mandal\r\n      @notice This code allows multiple users to add and delete their  tweets in an decentraized manner \r\n      @dev contains only basic functionalities of adding and deleting the tweets\r\n    \r\n */\r\n\r\n  /**@dev the structure of user storing user data\r\n   */\r\n\r\n  struct user {\r\n    address userAddress;\r\n    string userName;\r\n    string profileImageUri;\r\n    string BannerImageUri;\r\n    address[] follower;\r\n    address[] following;\r\n    bool isExisting;\r\n  }\r\n\r\n  /**@dev the structure of tweet storing each individual  tweets\r\n   */\r\n  struct tweet {\r\n    address whoTweeted;\r\n    string tweetDescription;\r\n    bool isDeleted;\r\n    bool isLiked;\r\n    uint uniqueid;\r\n  }\r\n\r\n  /**@dev mapping of\r\n1.users to each individual addresses\r\n2.each individual account to their tweets\r\n */\r\n  mapping(address => user) public AllUserMapping;\r\n  mapping(address => tweet[]) public AllTweets;\r\n\r\n  //FUNCTIONS\r\n\r\n  /**@dev the for setting the profile image\r\n   */\r\n  function setUserProfileImage(string memory _userImageUri) public {\r\n    AllUserMapping[msg.sender].profileImageUri = _userImageUri;\r\n  }\r\n\r\n  /**@dev setting the banner image\r\n   */\r\n  function setUserBannermage(string memory _BannerImageUri) public {\r\n    AllUserMapping[msg.sender].profileImageUri = _BannerImageUri;\r\n  }\r\n\r\n  /**@dev tfnctionality to add tweets\r\n   */\r\n  function addTweet(string memory _tweetDescription) public {\r\n    if (AllUserMapping[msg.sender].isExisting) {\r\n      uint counter = AllTweets[msg.sender].length;\r\n      (AllTweets[msg.sender]).push(\r\n        tweet(msg.sender, _tweetDescription, false, false, counter)\r\n      );\r\n\r\n      emit TweetAdded(msg.sender, AllTweets[msg.sender][counter]);\r\n    } else {\r\n      revert Twitter__UserDonotExist();\r\n    }\r\n  }\r\n\r\n  /**@dev functionality to delete tweets\r\n   */\r\n  function deleteTweet(uint index) public {\r\n    AllTweets[msg.sender][index].isDeleted = true;\r\n    emit TweetDeleted(msg.sender, AllTweets[msg.sender][index]);\r\n  }\r\n\r\n  /**@dev the to retrive all tweets except the deleted ones\r\n   */\r\n\r\n  function getAllTweetsByUserAfterDeletion()\r\n    public\r\n    view\r\n    returns (tweet[] memory)\r\n  {\r\n    tweet[] memory temp = new tweet[](AllTweets[msg.sender].length);\r\n    uint counter = 0;\r\n\r\n    for (uint i = 0; i < AllTweets[msg.sender].length; i++) {\r\n      if (AllTweets[msg.sender][i].isDeleted == false) {\r\n        temp[counter] = AllTweets[msg.sender][i];\r\n        counter++;\r\n      }\r\n    }\r\n    tweet[] memory result = new tweet[](counter);\r\n    for (uint i = 0; i < counter; i++) {\r\n      result[i] = temp[i];\r\n    }\r\n    return result;\r\n  }\r\n}\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

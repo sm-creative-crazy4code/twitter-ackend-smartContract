@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "Contracts/Twitter.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.7;\r\n\r\n\r\ncontract Twitter{\r\n\r\nerror Twitter__UserDonotExist();\r\n\r\nevent TweetAdded(address indexed tweeter,tweet indexed tweets);\r\nevent TweetDeleted(address indexed tweeter,tweet indexed tweets);\r\n\r\n\r\n\r\nstruct  user{\r\naddress userAddress;\r\nstring userName;\r\nstring profileImageUri;\r\nstring BannerImageUri;\r\naddress[] follower;\r\naddress[] following;\r\nbool isExisting;\r\n}\r\n\r\nstruct tweet{\r\n\r\n    address whoTweeted;\r\n    string tweetDescription;\r\n    bool isDeleted;\r\n    bool isLiked;\r\n    \r\n    uint uniqueid;\r\n}\r\n\r\n\r\ntweet[] TweetsByAll;\r\nmapping(address=> uint) public s_latestNoOfTweetForEachUser;\r\nmapping (address=>user) public  AllUserMapping;\r\nmapping (address=> tweet[]) public    AllTweets;\r\n\r\nfunction setUserProfileImage(string memory _userImageUri)public {\r\n    AllUserMapping[msg.sender].profileImageUri =_userImageUri;\r\n\r\n\r\n}\r\n\r\n// function UserConnected()public{\r\n//     AllUserMapping[msg.sender].isExisting=true;\r\n//     s_latestNoOfTweetForEachUser[msg.sender]=0;\r\n// }\r\n\r\nfunction setUserBannermage(string memory _BannerImageUri)public {\r\n    AllUserMapping[msg.sender].profileImageUri =_BannerImageUri;\r\n}\r\n\r\n\r\nfunction addTweet(string memory _tweetDescription) public {\r\n if(AllUserMapping[msg.sender].isExisting)   {\r\nuint counter= AllTweets[msg.sender].length;\r\n(AllTweets[msg.sender]).push(tweet(msg.sender, _tweetDescription,false,false,counter));\r\nuint i= TweetsByAll.length;\r\nTweetsByAll.push(tweet(msg.sender, _tweetDescription,false,false,i));\r\n\r\n\r\nemit TweetAdded(msg.sender,AllTweets[msg.sender][counter]);}else{\r\n    revert Twitter__UserDonotExist();\r\n}\r\n\r\n}\r\n\r\n\r\nfunction deleteTweet(uint index)public{\r\nif(TweetsByAll[index].whoTweeted==msg.sender){\r\nTweetsByAll[index].isDeleted=true;\r\nAllTweets[msg.sender][index].isDeleted= true;\r\nemit TweetDeleted(msg.sender,AllTweets[msg.sender][index]);\r\n}\r\n\r\n}\r\n\r\n\r\n\r\nfunction getAllTweetsAfterDeletion() public view returns(tweet[] memory ){\r\n\r\n    tweet[] memory temp = new tweet[](TweetsByAll.length);\r\n    uint counter = 0;  \r\n\r\n    for(uint i=0; i<TweetsByAll.length; i++) {\r\n        if(TweetsByAll[i].whoTweeted == msg.sender && TweetsByAll[i].isDeleted == false) {\r\n            temp[counter] = TweetsByAll[i];\r\n            counter++;\r\n        }\r\n    }\r\n    tweet[] memory result = new tweet[](counter);\r\n    for(uint i=0; i<counter; i++) {\r\n        result[i] = temp[i];\r\n    }\r\n    return result;\r\n\r\n\r\n\r\n    }\r\n\r\n    function getAllTweetsByUserAfterDeletion() public view returns(tweet[] memory ){\r\n        tweet[] memory temp = new tweet[](AllTweets[msg.sender].length);\r\n        uint counter = 0;  \r\n\r\n\r\n    for(uint i=0; i<AllTweets[msg.sender].length; i++) {\r\n        if(AllTweets[msg.sender][i].isDeleted == false) {\r\n            temp[counter] =AllTweets[msg.sender][i];\r\n            counter++;\r\n        }\r\n    }\r\n    tweet[] memory result = new tweet[](counter);\r\n    for(uint i=0; i<counter; i++) {\r\n        result[i] = temp[i];\r\n    }\r\n    return result;\r\n\r\n    }\r\n\r\n\r\n\r\n\r\n}\r\n\r\n\r\n\r\n\r\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
